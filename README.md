@@ -16,3 +16,11 @@ To install it run this command:
 ```bash
 curl -s --location --fail --max-redirs 0 https://raw.githubusercontent.com/linuxfandudeguy/typeascii/main/typeascii.sh >> ~/.bashrc
 ```
+Once you are done installing, install `toilet` and `pv`  if not already installed using your package manager. (depending on your distro, `pv` might already be installed)
+
+Here's an example command you can run once you are done installing:
+
+```bash
+typeascii "beeep" "slant" "gay"
+```
+![Screenshot 2024-08-01 2 09 09 PM](https://github.com/user-attachments/assets/1b976ec4-a08b-4c9c-acf4-86b2f40ea246)
