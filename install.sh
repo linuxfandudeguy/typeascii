@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cat << 'EOF' >> ~/.bashrc
 # Define the typeascii function to handle ASCII art typing without border option
 typeascii() {
