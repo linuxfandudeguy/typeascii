@@ -10,3 +10,9 @@ You must use a font or else it will display this error:
 You can put filters on your ASCII:
  
 ![Screenshot 2024-08-01 1 57 38 PM](https://github.com/user-attachments/assets/d672282a-2914-4253-9775-171945405130)
+
+To install it run this command:
+
+```bash
+curl -s --location --fail --max-redirs 0 https://raw.githubusercontent.com/linuxfandudeguy/typeascii/main/typeascii.sh >> ~/.bashrc
+```
