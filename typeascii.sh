@@ -1,65 +1,76 @@
-#!/bin/bash
+# !!!DO NOT DELETE THIS SECTION!!!
 
+# Function to type out the text using `toilet`, `pv`, and apply filters
 typeascii() {
     local text="$1"
-    local style="$2"
-
-    # Define color codes
-    RED='\033[1;31m'
-    GREEN='\033[1;32m'
-    YELLOW='\033[1;33m'
-    NC='\033[0m' # No Color
-
-    # Function to handle typing effect
-    type_text() {
-        # Set default style if not provided
-        local ascii_style="${style:-standard}"
-
-        # Build the command
-        local command="toilet -f $ascii_style"
-
-        # Debug output
-        echo -e "${YELLOW}Command to be run: $command${NC}"
-
-        # Attempt to execute the command and handle errors
-        local full_command="echo \"$text\" | $command | pv -qL 100"
-        echo -e "${GREEN}Running: $full_command${NC}"
-
-        # Execute the command and capture errors
-        if ! eval "$full_command"; then
-            echo -e "${RED}Error: Failed to execute the command.${NC}"
-        fi
-    }
-
-    # Check if text is provided as an argument
-    if [ $# -gt 0 ]; then
-        if [ $# -eq 1 ]; then
-            type_text "$1"
-        elif [ $# -eq 2 ]; then
-            type_text "$1" "$2"
-        else
-            echo -e "${RED}Usage: typeascii [text] [style]${NC}"
-            return 1
-        fi
+    local font="$2"
+    local filter="$3"
+    
+    # Adjust typing speed to a balanced rate
+    local rate="50"  # Speed in bytes per second (adjust as needed for balance)
+    
+    # Check if a filter is specified
+    if [ -n "$filter" ]; then
+        echo "$text" | toilet -f "$font" -F "$filter" | pv -qL "$rate"
     else
-        # Prompt the user for text with color
-        echo -e "${GREEN}What text do you want to type? ${NC}"
-        read user_text
-
-        # Check if input was provided
-        if [ -z "$user_text" ]; then
-            echo -e "${RED}No text provided.${NC}"
-            return 1
-        fi
-
-        # Prompt for style with color
-        echo -e "${YELLOW}Enter ASCII art style (or press Enter to use default): ${NC}"
-        read user_style
-
-        # Set default style if not provided
-        user_style="${user_style:-standard}"
-
-        # Call type_text with user inputs
-        type_text "$user_text" "$user_style"
+        echo "$text" | toilet -f "$font" | pv -qL "$rate"
     fi
 }
+
+# Color codes
+COLOR_RESET="\033[0m"
+COLOR_TEXT="\033[1;32m"   # Green for text input
+COLOR_FONT="\033[1;34m"   # Blue for font selection
+COLOR_FILTER="\033[1;35m" # Magenta for filter selection
+
+# Function to display a colored prompt
+colored_prompt() {
+    local color="$1"
+    local message="$2"
+    echo -e "${color}${message}${COLOR_RESET}"
+}
+
+# Check if an argument is provided
+if [ $# -eq 0 ]; then
+    # Prompt the user for text input
+    colored_prompt "$COLOR_TEXT" "What text do you want to type? "
+    read user_text
+    
+    # Prompt the user for the font
+    colored_prompt "$COLOR_FONT" "Enter the font you want to use (e.g., standard, big, etc.): "
+    read font_name
+
+    # Prompt the user for the filter
+    colored_prompt "$COLOR_FILTER" "Enter a filter to apply (e.g., 'gay', 'metal', or leave empty for none): "
+    read filter_name
+
+    # Validate the font
+    if ! echo "$user_text" | toilet -f "$font_name" > /dev/null 2>&1; then
+        echo "Invalid font. Using default font."
+        font_name="standard"
+    fi
+
+    # Validate the filter
+    if [ -n "$filter_name" ] && ! echo "$user_text" | toilet -F "$filter_name" > /dev/null 2>&1; then
+        echo "Invalid filter. No filter will be applied."
+        filter_name=""
+    fi
+
+    typeascii "$user_text" "$font_name" "$filter_name"
+else
+    # Use the provided arguments as the text, font, and optionally filter
+    if [ $# -eq 1 ]; then
+        typeascii "$1" "standard" ""  # Default font and no filter if only text is provided
+    else
+        if [ $# -eq 2 ]; then
+            typeascii "$1" "$2" ""  # Default no filter if text and font are provided
+        else
+            if [ $# -eq 3 ]; then
+                typeascii "$1" "$2" "$3"
+            else
+                echo "Invalid number of arguments."
+                exit 1
+            fi
+        fi
+    fi
+fi
