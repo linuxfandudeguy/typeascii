@@ -30,8 +30,8 @@ colored_prompt() {
     echo -e "${color}${message}${COLOR_RESET}"
 }
 
-# Check if an argument is provided
-if [ $# -eq 0 ]; then
+# Define a helper function to handle the prompt process
+handle_prompts() {
     # Prompt the user for text input
     colored_prompt "$COLOR_TEXT" "What text do you want to type? "
     read user_text
@@ -57,19 +57,27 @@ if [ $# -eq 0 ]; then
     fi
 
     typeascii "$user_text" "$font_name" "$filter_name"
-else
-    # Use the provided arguments as the text, font, and optionally filter
-    if [ $# -eq 1 ]; then
-        typeascii "$1" "standard" ""  # Default font and no filter if only text is provided
+}
+
+# Check if the script is being sourced or executed
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # If executed directly, handle arguments
+    if [ $# -eq 0 ]; then
+        handle_prompts
     else
-        if [ $# -eq 2 ]; then
-            typeascii "$1" "$2" ""  # Default no filter if text and font are provided
+        # Use the provided arguments as the text, font, and optionally filter
+        if [ $# -eq 1 ]; then
+            typeascii "$1" "standard" ""  # Default font and no filter if only text is provided
         else
-            if [ $# -eq 3 ]; then
-                typeascii "$1" "$2" "$3"
+            if [ $# -eq 2 ]; then
+                typeascii "$1" "$2" ""  # Default no filter if text and font are provided
             else
-                echo "Invalid number of arguments."
-                exit 1
+                if [ $# -eq 3 ]; then
+                    typeascii "$1" "$2" "$3"
+                else
+                    echo "Invalid number of arguments."
+                    exit 1
+                fi
             fi
         fi
     fi
